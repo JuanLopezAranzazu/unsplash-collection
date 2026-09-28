@@ -1,122 +1,199 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { Link, Route, Routes, Navigate } from "react-router-dom";
+import {
+  Avatar,
+  Box,
+  Button,
+  Container,
+  Flex,
+  Heading,
+  IconButton,
+  Menu,
+  Portal,
+} from "@chakra-ui/react";
+import { useTheme } from "next-themes";
+import {
+  LuSun,
+  LuMoon,
+  LuUpload,
+  LuFolder,
+  LuLogOut,
+  LuLogIn,
+  LuUser,
+} from "react-icons/lu";
 
-function App() {
-  const [count, setCount] = useState(0)
+import { useAuth } from "./auth";
+import {
+  Home,
+  ImageDetail,
+  Upload,
+  Collections,
+  CollectionDetail,
+  Login,
+} from "./pages";
+
+export default function App() {
+  const { user, logout } = useAuth();
+  const { resolvedTheme, setTheme } = useTheme();
+  const dark = resolvedTheme === "dark";
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
+    <Box colorPalette="brand" minH="100vh">
+      <Flex
+        as="header"
+        px={{ base: 3, sm: 4, md: 6 }}
+        py={3}
+        align="center"
+        gap={{ base: 1, sm: 2, md: 3 }}
+        borderBottomWidth="1px"
+        position="sticky"
+        top={0}
+        bg="bg/90"
+        backdropFilter="blur(8px)"
+        zIndex={10}
+      >
+        <Heading
+          size={{ base: "md", sm: "lg", md: "xl" }}
+          color="colorPalette.fg"
+          asChild
+          truncate
+          flexShrink={1}
         >
-          Count is {count}
-        </button>
-      </section>
+          <Link to="/">Unsplash Col</Link>
+        </Heading>
 
-      <div className="ticks"></div>
+        <Button
+          variant="ghost"
+          display={{ base: "none", md: "inline-flex" }}
+          asChild
+        >
+          <Link to="/collections">
+            <LuFolder />
+            Colecciones
+          </Link>
+        </Button>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <Box flex={1} />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        <IconButton
+          variant="ghost"
+          aria-label="Cambiar tema"
+          onClick={() => setTheme(dark ? "light" : "dark")}
+          flexShrink={0}
+        >
+          {dark ? <LuSun /> : <LuMoon />}
+        </IconButton>
+
+        {user ? (
+          <>
+            <Button
+              display={{ base: "none", md: "inline-flex" }}
+              colorPalette="brand"
+              asChild
+            >
+              <Link to="/upload">
+                <LuUpload />
+                Subir imagen
+              </Link>
+            </Button>
+
+            <Menu.Root positioning={{ placement: "bottom-end" }}>
+              <Menu.Trigger asChild>
+                <Button
+                  variant="plain"
+                  p={0}
+                  minW={0}
+                  rounded="full"
+                  aria-label="Menú de usuario"
+                  flexShrink={0}
+                >
+                  <Avatar.Root size={{ base: "xs", sm: "sm" }}>
+                    <Avatar.Fallback name={user.name} />
+                    <Avatar.Image src={user.avatar} />
+                  </Avatar.Root>
+                </Button>
+              </Menu.Trigger>
+
+              <Portal>
+                <Menu.Positioner>
+                  <Menu.Content minW="52">
+                    <Menu.Item value="name" disabled fontWeight="medium">
+                      <LuUser />
+                      {user.name}
+                    </Menu.Item>
+
+                    <Menu.Item
+                      value="upload"
+                      display={{ base: "flex", md: "none" }}
+                      asChild
+                    >
+                      <Link to="/upload">
+                        <LuUpload />
+                        Subir imagen
+                      </Link>
+                    </Menu.Item>
+
+                    <Menu.Item
+                      value="collections"
+                      display={{ base: "flex", md: "none" }}
+                      asChild
+                    >
+                      <Link to="/collections">
+                        <LuFolder />
+                        Colecciones
+                      </Link>
+                    </Menu.Item>
+
+                    <Menu.Separator />
+
+                    <Menu.Item value="logout" color="fg.error" onClick={logout}>
+                      <LuLogOut />
+                      Cerrar sesión
+                    </Menu.Item>
+                  </Menu.Content>
+                </Menu.Positioner>
+              </Portal>
+            </Menu.Root>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="ghost"
+              display={{ base: "inline-flex", md: "none" }}
+              asChild
+              px={2}
+            >
+              <Link to="/collections">
+                <LuFolder />
+              </Link>
+            </Button>
+
+            <Button asChild size={{ base: "sm", sm: "md" }} flexShrink={0}>
+              <Link to="/login">
+                <LuLogIn />
+                <Box display={{ base: "none", sm: "block" }}>Entrar</Box>
+              </Link>
+            </Button>
+          </>
+        )}
+      </Flex>
+
+      <Container
+        maxW="7xl"
+        px={{ base: 3, sm: 4, md: 6 }}
+        py={{ base: 4, md: 8 }}
+      >
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/images/:id" element={<ImageDetail />} />
+          <Route
+            path="/upload"
+            element={user ? <Upload /> : <Navigate to="/login" />}
+          />
+          <Route path="/collections" element={<Collections />} />
+          <Route path="/collections/:id" element={<CollectionDetail />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </Container>
+    </Box>
+  );
 }
-
-export default App
