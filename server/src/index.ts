@@ -1,11 +1,19 @@
 import "dotenv/config";
 import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
+import passport from "passport";
+import authRouter from "./auth";
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
+app.use(cookieParser());
+app.use(passport.initialize());
+
+// Rutas
+app.use("/auth", authRouter);
 
 app.use((err: Error, _q: Request, res: Response, _n: NextFunction) => {
   console.error(err);
